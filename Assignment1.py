@@ -1,108 +1,7 @@
-"""CSE 242 Assignment 1 — submit as Assignment1.py.
-
-Fill # YOUR ANSWER HERE blocks with commented reasoning; fill function bodies
-at # YOUR CODE HERE. Keep signatures. See README.md and INTERFACE.md.
-Functions must not mutate inputs, prompt for input, or perform network I/O.
-Only code inside the main guard should save/show figures.
-"""
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-# PART 1 (20 points), Q1: Show computations for the given A and B.
-# YOUR ANSWER HERE
-def matrix_operations(A=None, B=None):
-    """Return AB, BA, (A+B).T, A@B.T, trace(A), trace(AB).
-
-    Defaults: A=[[3,4],[2,1]], B=[[1,2],[0,-1]]. Other inputs are square
-    real matrices of matching size. Return a tuple in the specified order.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P1 Q2: Derive the given M eigenpairs and verify Mv=lambda*v.
-# YOUR ANSWER HERE
-def eigensystem(M=None):
-    """Return (values, vectors) for real symmetric M (default [[2,-1],[-1,2]]).
-
-    Vectors are columns paired with values; order, sign, and nonzero scale
-    are free. Vectors must span each eigenspace, including repeated roots.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P1 Q3: Prove trace(AB)=trace(BA) for compatible matrices.
-# YOUR ANSWER HERE
-
-# P1 Q4: Show the given C is invertible, and compute its inverse step by step.
-# YOUR ANSWER HERE
-def matrix_inverse(C=None):
-    """Return inverse of nonsingular square C; default C=[[4,7],[2,6]]."""
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# PART 2 (50 points), Q1: Normalize c*3**k/k!, derive expectation and variance.
-# YOUR ANSWER HERE
-def distribution_moments(rate=3.):
-    """Return (c, mean, variance) for P(X=k)=c*rate**k/k!, k>=0, rate>0."""
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P2 Q2: Show reasoning for intersection, conditional, and union probabilities.
-# YOUR ANSWER HERE
-def event_probabilities(p_a=.5, p_b=.3, p_a_given_b=.6):
-    """Return (P(A intersect B), P(B|A), P(A union B)).
-
-    Inputs describe a valid distribution with p_a,p_b>0.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P2 Q3: Derive MLE/MAP for H,H,T,H,T, including the prior and maximization.
-# YOUR ANSWER HERE
-def coin_estimates(heads=3, tosses=5):
-    """Return (MLE, MAP) using prior density 2*theta on [0,1].
-
-    0<=heads<=tosses, positive integer tosses. Include boundary maxima.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P2 Q4: Derive both Gaussian MLEs for [1,3,5,7] step by step.
-# YOUR ANSWER HERE
-def gaussian_mle(data=None):
-    """Return (mean MLE, variance MLE); default data=[1,3,5,7].
-
-    Other inputs are finite 1D samples of length>=2 with nonzero variance.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P2 Q5: Derive the Gaussian posterior mode for the given observation/prior.
-# YOUR ANSWER HERE
-def gaussian_map(x=5., observation_variance=4., prior_mean=0., prior_variance=1.):
-    """Return posterior mode for one observation and a Gaussian mean prior.
-
-    Both variances are positive; inputs are variances, not standard deviations.
-    """
-    # YOUR CODE HERE
-    raise NotImplementedError()
-
-
-# P2 Q6: Prove Var(X)=E[X**2]-E[X]**2.
-# YOUR ANSWER HERE
-
-# PART 3 (30 points), Q1: Define covariance and derive Var(u.T@X)=u.T@Sigma@u.
-# YOUR ANSWER HERE
-
-# P3 Q2: Describe the Gaussian generator and observed correlation.
-# YOUR ANSWER HERE
 def generate_data(n_samples=500, seed=0, mean=None, covariance=None):
     """Return reproducible Gaussian samples (n_samples,2) using NumPy and seed.
 
@@ -110,11 +9,15 @@ def generate_data(n_samples=500, seed=0, mean=None, covariance=None):
     (2,), covariance (2,2) is positive definite. Do not mutate input arrays.
     """
     # YOUR CODE HERE
-    raise NotImplementedError()
+    if mean is None:
+        mean = np.array([2, -1])
+    if covariance is None:
+        covariance = np.array([[3, 1.2], [1.2, 1]])
+    rng = np.random.default_rng(seed)
+    # Generate Gaussian samples
+    X = rng.multivariate_normal(mean, covariance, n_samples)
+    return X
 
-
-# P3 Q3: Link centering/covariance/eigendecomposition to the derivation and explain the plot.
-# YOUR ANSWER HERE
 def pca(X):
     """Fit NumPy PCA without mutating finite X of shape (n,2), n>=2.
 
@@ -124,34 +27,97 @@ def pca(X):
     Signs/tied-eigenspace bases are free. Include rank-deficient and tied cases.
     NumPy eigh/SVD are allowed; fitted library PCA is not.
     """
-    # YOUR CODE HERE
-    raise NotImplementedError()
+    X = np.asarray(X, dtype=float)
+    n = X.shape[0]
+
+    # Center
+    mean = np.mean(X, axis=0)
+    centered = X - mean
+
+    # Covariance
+    # np.cov() treates each row a variable, but our rows
+    # are observations and column are features
+    covariance = np.cov(centered, rowvar=False)
+
+    # Eigenvalues and eigenvectors
+    eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+
+    # Sort by descending eigenvalues
+    indices = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[indices]
+    components = eigenvectors[:, indices]
+
+    # Project data
+    scores = centered @ components
+
+    return {
+        "mean": mean,
+        "centered": centered,
+        "covariance": covariance,
+        "eigenvalues": eigenvalues,
+        "components": components,
+        "scores": scores
+    }
 
 
 # P3 Q4: Interpret the variance fractions and dimensionality reduction tradeoff.
-# YOUR ANSWER HERE
 def explained_variance(eigenvalues):
     """Return same-shape fractions for nonnegative eigenvalues with positive sum."""
-    # YOUR CODE HERE
-    raise NotImplementedError()
+    eigenvalues = np.asarray(eigenvalues, dtype=float)
+    total = np.sum(eigenvalues)
+    fractions = eigenvalues / total
+    return fractions
 
 
 # P3 Q2/Q3/Q4: Provide labeled figures and discuss their meaning.
-# YOUR ANSWER HERE
 def make_plots(X, result):
     """Return a Matplotlib Figure (or sequence of Figures), without show/save.
 
     Plot samples and principal directions through their mean, and explained
     variance fractions. Label axes. Plot quality is manually reviewed.
     """
-    # YOUR CODE HERE
-    raise NotImplementedError()
+    # two figures
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8))
 
+    mean = result["mean"]
+    components = result["components"]
+    eigenvalues = result["eigenvalues"]
 
-# REFLECTION: contributions, tasks completed, and external resources used.
-# YOUR ANSWER HERE
+    # Data and principal components
+
+    # make it translucent for observing dense area 
+    ax1.scatter(X[:, 0], X[:, 1], alpha=0.4)
+
+    for i, color in enumerate(["red", "green"]):
+      # standard deviation along the pca direction
+      # * 2 to make it longer
+      v = 2 * np.sqrt(eigenvalues[i]) * components[:, i]
+
+      ax1.plot(
+          [mean[0] - v[0], mean[0] + v[0]],
+          [mean[1] - v[1], mean[1] + v[1]],
+          color=color, linewidth=2, label=f"PC{i+1}"
+      )
+
+    ax1.set(title="Data with PCA Directions", xlabel="Feature 1", ylabel="Feature 2")
+    ax1.set_aspect("equal")
+    ax1.legend()
+    ax1.grid(alpha=0.2)
+
+    # variance
+    fractions = explained_variance(eigenvalues)
+
+    ax2.bar(["PC1", "PC2"], fractions * 100, color=["red", "green"])
+    ax2.set(title="Explained Variance", ylabel="Explained Variance (%)", ylim=(0, 105))
+
+    for i, f in enumerate(fractions):
+        ax2.text(i, f * 100 + 2, f"{f:.1%}", ha="center")
+
+    fig.tight_layout()
+    return fig
 
 if __name__ == '__main__':
-    # YOUR CODE HERE: call your functions and save/display the requested figures.
-    # This block does not run when the grader imports your functions.
-    pass
+    X = generate_data()
+    result = pca(X)
+    fig = make_plots(X, result)
+    fig.savefig("pca.png", dpi=300, bbox_inches="tight")
